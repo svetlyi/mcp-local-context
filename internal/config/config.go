@@ -8,44 +8,55 @@ import (
 	"strings"
 )
 
+const (
+	defaultConfigDir  = ".mcp-local-context"
+	defaultRulesDir   = "rules"
+	defaultConfigFile = "config.json"
+)
+
 type Config struct {
-	Address          string   `json:"address,omitempty"`
-	Port             int      `json:"port,omitempty"`
-	LogLevel         string   `json:"log_level,omitempty"`
-	CustomPromptDirs []string `json:"custom_prompt_dirs,omitempty"`
+	LogLevel       string   `json:"log_level,omitempty"`
+	LogFile        string   `json:"log_file,omitempty"`
+	CustomRuleDirs []string `json:"custom_rule_dirs,omitempty"`
 }
 
 func DefaultConfig() *Config {
 	return &Config{
-		Address:  "localhost",
-		Port:     8080,
-		LogLevel: "info",
+		LogLevel:       "info",
+		CustomRuleDirs: make([]string, 0),
 	}
 }
 
-func GetConfigDir() (string, error) {
+func getConfigDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
-	return filepath.Join(homeDir, ".mcp-local-context"), nil
+	return filepath.Join(homeDir, defaultConfigDir), nil
 }
 
-func GetConfigPath() (string, error) {
-	configDir, err := GetConfigDir()
+func getConfigPath() (string, error) {
+	configDir, err := getConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(configDir, "config.json"), nil
+	return filepath.Join(configDir, defaultConfigFile), nil
 }
 
 func Load() (*Config, error) {
-	configPath, err := GetConfigPath()
+	configPath, err := getConfigPath()
 	if err != nil {
 		return nil, err
 	}
 
 	config := DefaultConfig()
+
+	defer func() {
+		defaultRulesDir, err := getRulesDir()
+		if err == nil {
+			config.CustomRuleDirs = append(config.CustomRuleDirs, defaultRulesDir)
+		}
+	}()
 
 	data, err := os.ReadFile(configPath)
 	if err != nil {
@@ -59,19 +70,12 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	if len(config.CustomPromptDirs) == 0 {
-		rulesDir, err := GetRulesDir()
-		if err == nil {
-			config.CustomPromptDirs = []string{rulesDir}
-		}
-	} else {
-		expandedDirs := make([]string, 0, len(config.CustomPromptDirs))
-		for _, dir := range config.CustomPromptDirs {
-			expanded := expandPath(dir)
-			expandedDirs = append(expandedDirs, expanded)
-		}
-		config.CustomPromptDirs = expandedDirs
+	for i, dir := range config.CustomRuleDirs {
+		expanded := expandPath(dir)
+		config.CustomRuleDirs[i] = expanded
 	}
+
+	config.LogFile = expandPath(config.LogFile)
 
 	return config, nil
 }
@@ -86,10 +90,10 @@ func expandPath(path string) string {
 	return path
 }
 
-func GetRulesDir() (string, error) {
-	configDir, err := GetConfigDir()
+func getRulesDir() (string, error) {
+	configDir, err := getConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(configDir, "rules"), nil
+	return filepath.Join(configDir, defaultRulesDir), nil
 }
