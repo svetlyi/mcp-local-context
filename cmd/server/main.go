@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/svetlyi/mcp-local-context/internal/config"
 	"github.com/svetlyi/mcp-local-context/internal/logging"
@@ -28,17 +31,38 @@ func main() {
 	registry := prompts.NewRegistry()
 	registry.Register(prompts.NewGolangProvider())
 
-	customProviders := custom.LoadPromptsFromDirectories(cfg.CustomPromptDirs)
+	customProviders, err := custom.LoadPromptsFromDirectories(cfg.CustomPromptDirs)
+	if err != nil {
+		slog.Error("Failed to load custom prompts", "error", err)
+		os.Exit(1)
+	}
 	for _, provider := range customProviders {
 		registry.Register(provider)
 	}
 	if len(customProviders) > 0 {
 		slog.Info("Loaded custom prompts", "count", len(customProviders))
+	} else if err != nil {
+		slog.Warn("No custom prompts loaded due to errors")
 	}
 
 	srv := server.New(registry)
-	if err := srv.Run(); err != nil {
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-sigChan
+		slog.Info("Shutting down server...")
+		cancel()
+	}()
+
+	if err := srv.Run(ctx); err != nil && err != context.Canceled {
 		slog.Error("Server error", "error", err)
 		os.Exit(1)
 	}
+
+	slog.Info("Server stopped")
 }

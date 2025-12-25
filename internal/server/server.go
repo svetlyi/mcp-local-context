@@ -74,9 +74,7 @@ func (s *Server) registerPrompt(prompt prompts.Prompt) {
 	s.mcpServer.AddPrompt(mcpPrompt, handler)
 }
 
-// Run starts the MCP server on stdio transport
-func (s *Server) Run() error {
-	ctx := context.Background()
+func (s *Server) Run(ctx context.Context) error {
 	transport := &mcp.StdioTransport{}
 	return s.mcpServer.Run(ctx, transport)
 }

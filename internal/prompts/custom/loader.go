@@ -34,7 +34,7 @@ func LoadPromptsFromDirectory(promptsDir string) ([]prompts.Provider, error) {
 		promptPath := filepath.Join(promptsDir, entry.Name())
 		content, err := os.ReadFile(promptPath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read prompt file %s: %w", promptPath, err)
+			return nil, fmt.Errorf("failed to read prompt file %s: %w", entry.Name(), err)
 		}
 
 		description := extractDescription(content)
@@ -52,12 +52,17 @@ func LoadPromptsFromDirectory(promptsDir string) ([]prompts.Provider, error) {
 
 // extractDescription extracts the description from the first line of content.
 // It removes markdown heading markers (#, ##, etc.) if present.
+// Handles both Unix (\n) and Windows (\r\n) line endings.
 func extractDescription(content []byte) string {
 	// Find the first newline or use the entire content if no newline exists
 	newlineIdx := bytes.IndexByte(content, '\n')
 	var firstLine []byte
 	if newlineIdx >= 0 {
 		firstLine = content[:newlineIdx]
+		// Remove Windows carriage return if present
+		if len(firstLine) > 0 && firstLine[len(firstLine)-1] == '\r' {
+			firstLine = firstLine[:len(firstLine)-1]
+		}
 	} else {
 		firstLine = content
 	}
@@ -77,18 +82,18 @@ func extractDescription(content []byte) string {
 	return description
 }
 
-func LoadPromptsFromDirectories(dirs []string) []prompts.Provider {
+func LoadPromptsFromDirectories(dirs []string) ([]prompts.Provider, error) {
 	var allProviders []prompts.Provider
 
 	for _, dir := range dirs {
 		providers, err := LoadPromptsFromDirectory(dir)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("failed to load prompts from directory %s: %w", dir, err)
 		}
 		allProviders = append(allProviders, providers...)
 	}
 
-	return allProviders
+	return allProviders, nil
 }
 
 type customPromptProvider struct {

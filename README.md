@@ -2,23 +2,54 @@
 
 A simple MCP (Model Context Protocol) server that provides prompts to AI assistants. This server helps ensure AI coding assistants have the right context when working with third-party packages by leveraging local module caches and custom prompts.
 
+## TLDR
+
+```bash
+# Install
+go install github.com/svetlyi/mcp-local-context@latest
+```
+
+Add to your IDE (e.g., Cursor), Settings → MCP Servers → Add:
+
+```json
+{
+  "mcpServers": {
+    "local-context": {
+      "command": "/path-to-the-binary/bin/mcp-local-context"
+    }
+  }
+}
+```
+
+The path to the binary can be found this way:
+
+```bash
+echo $(go env GOPATH)/bin/mcp-local-context
+```
+
 ## Overview
 
 `mcp-local-context` is an MCP server that provides prompts to AI assistants like Cursor, Claude, and GitHub Copilot. The primary use case is to provide systematic approaches for working with third-party packages by referencing local caches (like the Go module cache) rather than relying on potentially outdated documentation or assumptions.
 
 ## Why Use This?
 
-When working with multiple AI tools, it's easier to configure one MCP server that provides your custom prompts everywhere, rather than adding the same prompts to each tool individually and keeping them synchronized. This centralizes your AI assistant context prompts and makes them reusable across different tools.
+- 🔄 **Centralized Configuration**: Configure prompts once in one MCP server, use them across all AI tools
+- 🔁 **No Duplication**: Avoid adding the same prompts to each tool individually
+- 🔀 **Easy Synchronization**: Update prompts in one place, changes reflect everywhere
+- ♻️ **Reusable**: Share your custom prompts across Cursor, Claude Desktop, GitHub Copilot, and more
+- 🎯 **Consistent Context**: Ensure all AI assistants have the same context and guidelines
 
 ## Features
 
-- **Golang Context Prompt**: Built-in prompt for working with third-party Go packages using the Go module cache
-- **Custom Prompts**: Auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
-- **Cross-platform**: Works on macOS, Linux, and Windows
-- **Configurable**: Simple JSON configuration file
-- **Extensible**: Easy to add new prompt providers (e.g., JavaScript, Python)
+- 🐹 **Golang Context Prompt**: Built-in prompt for working with third-party Go packages using the Go module cache
+- 📝 **Custom Prompts**: Auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
+- 🌍 **Cross-platform**: Works on macOS, Linux, and Windows
+- ⚙️ **Configurable**: Simple JSON configuration file
+- 🔌 **Extensible**: Easy to add new prompt providers (e.g., JavaScript, Python)
 
 ## Installation
+
+📦 Install the server:
 
 ```bash
 go install github.com/svetlyi/mcp-local-context@latest
@@ -28,7 +59,7 @@ go install github.com/svetlyi/mcp-local-context@latest
 
 ### Configuration File
 
-Create a configuration file at `~/.mcp-local-context/config.json`:
+📋 Create a configuration file at `~/.mcp-local-context/config.json`:
 
 ```json
 {
@@ -45,9 +76,9 @@ Create a configuration file at `~/.mcp-local-context/config.json`:
 
 ### Custom Prompts
 
-Place custom prompt files (Markdown format) in `~/.mcp-local-context/prompts/`. Each `.md` file will be automatically discovered and made available as a prompt.
+📝 Place custom prompt files (Markdown format) in `~/.mcp-local-context/prompts/`. Each `.md` file will be automatically discovered and made available as a prompt.
 
-> **Important**: The first line of the file will be used as the prompt's description. If the first line is a markdown heading (starting with `#`), the heading markers will be automatically removed.
+> ⚠️ **Important**: The first line of the file will be used as the prompt's description. If the first line is a markdown heading (starting with `#`), the heading markers will be automatically removed.
 
 Example: `~/.mcp-local-context/prompts/my-custom-prompt.md`
 
@@ -65,7 +96,7 @@ The prompt will be available as a prompt named `my-custom-prompt` with the descr
 
 ### Running the Server
 
-The server communicates via stdio (standard input/output), which is the standard transport for MCP servers:
+🚀 The server communicates via stdio (standard input/output), which is the standard transport for MCP servers:
 
 ```bash
 ./bin/mcp-local-context
@@ -73,7 +104,7 @@ The server communicates via stdio (standard input/output), which is the standard
 
 ### Integration with AI Tools
 
-For example, for Cursor IDE, add it to the settings:
+🔌 For example, for Cursor IDE, add it to the settings:
 
 ```json
 {
@@ -89,7 +120,7 @@ If you installed it using `go install`, you can find the binary in your GO binar
 
 ## Available Prompts
 
-### golang-context-rule
+### 🐹 golang-context-rule
 
 Provides a systematic approach for working with third-party Go packages by referencing the Go module cache. This prompt guides AI assistants to:
 
@@ -101,12 +132,12 @@ Provides a systematic approach for working with third-party Go packages by refer
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+📄 MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+🤝 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Related
 
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+🔗 [Model Context Protocol Specification](https://modelcontextprotocol.io/)
