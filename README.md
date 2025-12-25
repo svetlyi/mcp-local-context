@@ -1,6 +1,6 @@
 # mcp-local-context
 
-A simple MCP (Model Context Protocol) server that provides prompts to AI assistants. This server helps ensure AI coding assistants have the right context when working with third-party packages by leveraging local module caches and custom rules.
+A simple MCP (Model Context Protocol) server that provides prompts to AI assistants. This server helps ensure AI coding assistants have the right context when working with third-party packages by leveraging local module caches and custom prompts.
 
 ## Overview
 
@@ -8,32 +8,20 @@ A simple MCP (Model Context Protocol) server that provides prompts to AI assista
 
 ## Why Use This?
 
-When working with multiple AI tools, it's easier to configure one MCP server that provides your custom rules and prompts everywhere, rather than adding the same rules to each tool individually and keeping them synchronized. This centralizes your AI assistant context rules and makes them reusable across different tools.
+When working with multiple AI tools, it's easier to configure one MCP server that provides your custom prompts everywhere, rather than adding the same prompts to each tool individually and keeping them synchronized. This centralizes your AI assistant context prompts and makes them reusable across different tools.
 
 ## Features
 
-- **Golang Context Rule**: Built-in prompt for working with third-party Go packages using the Go module cache
-- **Custom Rules**: Auto-discovery of custom rule files from `~/.mcp-local-context/rules/*.md`
+- **Golang Context Prompt**: Built-in prompt for working with third-party Go packages using the Go module cache
+- **Custom Prompts**: Auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
 - **Cross-platform**: Works on macOS, Linux, and Windows
 - **Configurable**: Simple JSON configuration file
 - **Extensible**: Easy to add new prompt providers (e.g., JavaScript, Python)
 
 ## Installation
 
-1. Clone this repository:
 ```bash
-git clone https://github.com/svetlyi/mcp-local-context.git
-cd mcp-local-context
-```
-
-2. Build the server:
-```bash
-make build
-```
-
-Or manually:
-```bash
-go build -o bin/mcp-local-context ./cmd/server
+go install github.com/svetlyi/mcp-local-context@latest
 ```
 
 ## Configuration
@@ -44,27 +32,34 @@ Create a configuration file at `~/.mcp-local-context/config.json`:
 
 ```json
 {
-  "address": "localhost",
-  "port": 8080,
-  "log_level": "info"
+  "log_level": "info",
+  "log_file": "~/mcp-local-context.log",
+  "custom_prompt_dirs": ["~/custom-prompts", "/path/to/other/prompts"]
 }
 ```
 
-**Note**: Currently, the server uses stdio transport (standard for MCP servers), so the address and port settings are reserved for future HTTP transport support.
+**Configuration Options**:
+- `log_level`: Logging level (`debug`, `info`, `warn`, `error`). Default: `info`
+- `log_file`: Path to log file (supports `~/` expansion). If not set, logs to a temporary file, depending on the OS.
+- `custom_prompt_dirs`: Array of directories containing custom prompt files. The default `~/.mcp-local-context/prompts/` is always included
 
-### Custom Rules
+### Custom Prompts
 
-Place custom rule files (Markdown format) in `~/.mcp-local-context/rules/`. Each `.md` file will be automatically discovered and made available as a prompt.
+Place custom prompt files (Markdown format) in `~/.mcp-local-context/prompts/`. Each `.md` file will be automatically discovered and made available as a prompt.
 
-Example: `~/.mcp-local-context/rules/my-custom-rule.md`
+> **Important**: The first line of the file will be used as the prompt's description. If the first line is a markdown heading (starting with `#`), the heading markers will be automatically removed.
+
+Example: `~/.mcp-local-context/prompts/my-custom-prompt.md`
 
 ```markdown
-# My Custom Rule
+A description of my custom prompt.
 
-This is my custom rule that will be provided to AI assistants.
+# My Custom Prompt
+
+This is my custom prompt that will be provided to AI assistants.
 ```
 
-The rule will be available as a prompt named `my-custom-rule`.
+The prompt will be available as a prompt named `my-custom-prompt` with the description "A description of my custom prompt." (extracted from the first line).
 
 ## Usage
 
@@ -78,33 +73,19 @@ The server communicates via stdio (standard input/output), which is the standard
 
 ### Integration with AI Tools
 
-#### Cursor
-
-Add to your Cursor settings:
+For example, for Cursor IDE, add it to the settings:
 
 ```json
 {
   "mcpServers": {
     "local-context": {
-      "command": "/path/to/mcp-local-context/bin/mcp-local-context"
+      "command": "/path/to/mcp-local-context/bin//"
     }
   }
 }
 ```
 
-#### Claude Desktop
-
-Add to your Claude Desktop configuration:
-
-```json
-{
-  "mcpServers": {
-    "local-context": {
-      "command": "/path/to/mcp-local-context/bin/mcp-local-context"
-    }
-  }
-}
-```
+If you installed it using `go install`, you can find the binary in your GO binary path, `echo $(go env GOPATH)/bin/mcp-local-context`.
 
 ## Available Prompts
 
@@ -118,70 +99,6 @@ Provides a systematic approach for working with third-party Go packages by refer
 4. Use `go doc` to get documentation
 5. Read the source code directly
 
-See [adr/golang-context-rule.md](adr/golang-context-rule.md) for the full content.
-
-## Development
-
-### Project Structure
-
-```
-mcp-local-context/
-├── cmd/
-│   └── server/
-│       └── main.go              # MCP server entry point
-├── internal/
-│   ├── config/
-│   │   └── config.go            # Configuration loading
-│   ├── prompts/
-│   │   ├── provider.go          # Prompt provider interface
-│   │   └── golang.go            # Golang prompt implementation
-│   └── rules/
-│       └── loader.go            # Rule discovery and loading
-├── .github/
-│   └── workflows/
-│       └── ci.yml               # GitHub Actions pipeline
-├── Makefile                     # Build, test, lint commands
-└── README.md                    # This file
-```
-
-### Building
-
-```bash
-make build
-```
-
-### Testing
-
-```bash
-make test
-```
-
-### Linting
-
-```bash
-make lint
-```
-
-### Running Locally
-
-```bash
-make run
-```
-
-### Cleaning
-
-```bash
-make clean
-```
-
-## MCP Protocol
-
-This server implements the Model Context Protocol (MCP) using JSON-RPC 2.0 over stdio. It supports the following methods:
-
-- `initialize`: Initialize the MCP connection
-- `prompts/list`: List all available prompts
-- `prompts/get`: Get a specific prompt by name
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -193,5 +110,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Related
 
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- Blog post: [Improve AI Context: Use Your Go Module Cache](adr/golang-context-rule.md)
-

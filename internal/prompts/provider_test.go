@@ -2,6 +2,9 @@ package prompts
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegistry(t *testing.T) {
@@ -11,23 +14,14 @@ func TestRegistry(t *testing.T) {
 	registry.Register(provider1)
 
 	prompts := registry.GetAllPrompts()
-	if len(prompts) != 1 {
-		t.Fatalf("Expected 1 prompt, got %d", len(prompts))
-	}
+	require.Len(t, prompts, 1, "Expected 1 prompt")
 
 	prompt := registry.GetPrompt("golang-context-rule")
-	if prompt == nil {
-		t.Fatal("Expected to find 'golang-context-rule' prompt")
-	}
-
-	if prompt.Name != "golang-context-rule" {
-		t.Errorf("Expected prompt name 'golang-context-rule', got '%s'", prompt.Name)
-	}
+	require.NotNil(t, prompt, "Expected to find 'golang-context-rule' prompt")
+	assert.Equal(t, "golang-context-rule", prompt.Name)
 
 	nonexistent := registry.GetPrompt("nonexistent")
-	if nonexistent != nil {
-		t.Error("Expected nil for nonexistent prompt")
-	}
+	assert.Nil(t, nonexistent, "Expected nil for nonexistent prompt")
 }
 
 func TestRegistryMultipleProviders(t *testing.T) {
@@ -38,7 +32,5 @@ func TestRegistryMultipleProviders(t *testing.T) {
 	registry.Register(provider1)
 
 	prompts := registry.GetAllPrompts()
-	if len(prompts) != 2 {
-		t.Fatalf("Expected 2 prompts, got %d", len(prompts))
-	}
+	assert.Len(t, prompts, 2, "Expected 2 prompts")
 }

@@ -5,8 +5,9 @@ import (
 	"os"
 
 	"github.com/svetlyi/mcp-local-context/internal/config"
+	"github.com/svetlyi/mcp-local-context/internal/logging"
 	"github.com/svetlyi/mcp-local-context/internal/prompts"
-	"github.com/svetlyi/mcp-local-context/internal/rules"
+	"github.com/svetlyi/mcp-local-context/internal/prompts/custom"
 	"github.com/svetlyi/mcp-local-context/internal/server"
 )
 
@@ -17,19 +18,22 @@ func main() {
 		cfg = config.DefaultConfig()
 	}
 
+	closeLog, err := logging.Setup(cfg)
+	if err != nil {
+		slog.Error("Failed to setup logging", "error", err)
+		os.Exit(1)
+	}
+	defer closeLog()
+
 	registry := prompts.NewRegistry()
 	registry.Register(prompts.NewGolangProvider())
 
-	for _, promptDir := range cfg.CustomPromptDirs {
-		ruleProviders, err := rules.LoadRulesFromDirectory(promptDir)
-		if err != nil {
-			slog.Warn("Failed to load prompts from directory", "directory", promptDir, "error", err)
-			continue
-		}
-		for _, provider := range ruleProviders {
-			registry.Register(provider)
-		}
-		slog.Info("Loaded custom prompts", "directory", promptDir, "count", len(ruleProviders))
+	customProviders := custom.LoadPromptsFromDirectories(cfg.CustomPromptDirs)
+	for _, provider := range customProviders {
+		registry.Register(provider)
+	}
+	if len(customProviders) > 0 {
+		slog.Info("Loaded custom prompts", "count", len(customProviders))
 	}
 
 	srv := server.New(registry)

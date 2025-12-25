@@ -61,7 +61,7 @@ func TestLoadConfigMissingFile(t *testing.T) {
 func TestDefaultConfig(t *testing.T) {
 	cfg := config.DefaultConfig()
 	assert.Equal(t, "info", cfg.LogLevel)
-	assert.NotNil(t, cfg.CustomRuleDirs)
+	assert.NotNil(t, cfg.CustomPromptDirs)
 }
 
 func TestLoadConfigWithCustomPromptDirs(t *testing.T) {
@@ -76,8 +76,8 @@ func TestLoadConfigWithCustomPromptDirs(t *testing.T) {
 	customDir1 := filepath.Join(tmpDir, "custom1")
 	customDir2 := filepath.Join(tmpDir, "custom2")
 	testConfig := &config.Config{
-		LogLevel:       "debug",
-		CustomRuleDirs: []string{customDir1, customDir2},
+		LogLevel:         "debug",
+		CustomPromptDirs: []string{customDir1, customDir2},
 	}
 
 	data, err := json.Marshal(testConfig)
@@ -89,15 +89,15 @@ func TestLoadConfigWithCustomPromptDirs(t *testing.T) {
 	cfg, err := config.Load()
 	require.NoError(t, err)
 
-	expectedDefaultRulesDir := filepath.Join(configDir, "rules")
-	assert.GreaterOrEqual(t, len(cfg.CustomRuleDirs), 1, "Expected at least 1 directory (default rules dir)")
+	expectedDefaultPromptsDir := filepath.Join(configDir, "prompts")
+	assert.GreaterOrEqual(t, len(cfg.CustomPromptDirs), 1, "Expected at least 1 directory (default prompts dir)")
 
 	foundDefault := false
 	foundCustom1 := false
 	foundCustom2 := false
 
-	for _, dir := range cfg.CustomRuleDirs {
-		if dir == expectedDefaultRulesDir {
+	for _, dir := range cfg.CustomPromptDirs {
+		if dir == expectedDefaultPromptsDir {
 			foundDefault = true
 		}
 		if dir == customDir1 {
@@ -108,9 +108,9 @@ func TestLoadConfigWithCustomPromptDirs(t *testing.T) {
 		}
 	}
 
-	assert.True(t, foundDefault, "Expected default rules dir %s to be in CustomRuleDirs, got %v", expectedDefaultRulesDir, cfg.CustomRuleDirs)
-	assert.True(t, foundCustom1, "Expected custom dir %s to be in CustomRuleDirs, got %v", customDir1, cfg.CustomRuleDirs)
-	assert.True(t, foundCustom2, "Expected custom dir %s to be in CustomRuleDirs, got %v", customDir2, cfg.CustomRuleDirs)
+	assert.True(t, foundDefault, "Expected default prompts dir %s to be in CustomPromptDirs, got %v", expectedDefaultPromptsDir, cfg.CustomPromptDirs)
+	assert.True(t, foundCustom1, "Expected custom dir %s to be in CustomPromptDirs, got %v", customDir1, cfg.CustomPromptDirs)
+	assert.True(t, foundCustom2, "Expected custom dir %s to be in CustomPromptDirs, got %v", customDir2, cfg.CustomPromptDirs)
 }
 
 func TestLoadConfigWithoutCustomPromptDirs(t *testing.T) {
@@ -133,7 +133,7 @@ func TestLoadConfigWithoutCustomPromptDirs(t *testing.T) {
 	cfg, err := config.Load()
 	require.NoError(t, err)
 
-	expectedRulesDir := filepath.Join(configDir, "rules")
-	assert.Equal(t, 1, len(cfg.CustomRuleDirs), "Expected 1 default custom prompt directory")
-	assert.Equal(t, expectedRulesDir, cfg.CustomRuleDirs[0])
+	expectedPromptsDir := filepath.Join(configDir, "prompts")
+	assert.Equal(t, 1, len(cfg.CustomPromptDirs), "Expected 1 default custom prompt directory")
+	assert.Equal(t, expectedPromptsDir, cfg.CustomPromptDirs[0])
 }

@@ -9,7 +9,7 @@
    - For example, if the module from `go.mod` is `github.com/nats-io/nats.go v1.48.0`, the module cache is located at `$(go env GOPATH)/pkg/mod/github.com/nats-io/nats.go@v1.48.0/`
 
 3. Explore the package structure
-   - Use `ls -la` to list the directory structure of the module cache to understand the package organization.
+   - Use `ls -la` or other OS equivalent to list the directory structure of the module cache to understand the package organization.
    - This helps identify relevant subpackages, example files, and source code locations.
 
 4. Use `go doc` to get documentation
@@ -52,4 +52,3 @@ Read the source code directly of the module to get a better understanding:
 # Read relevant source files from the module cache
 cat $(go env GOPATH)/pkg/mod/github.com/nats-io/nats.go@v1.48.0/nats.go
 ```
-

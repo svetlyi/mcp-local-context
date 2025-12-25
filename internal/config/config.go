@@ -10,20 +10,20 @@ import (
 
 const (
 	defaultConfigDir  = ".mcp-local-context"
-	defaultRulesDir   = "rules"
+	defaultPromptsDir = "prompts"
 	defaultConfigFile = "config.json"
 )
 
 type Config struct {
-	LogLevel       string   `json:"log_level,omitempty"`
-	LogFile        string   `json:"log_file,omitempty"`
-	CustomRuleDirs []string `json:"custom_rule_dirs,omitempty"`
+	LogLevel         string   `json:"log_level,omitempty"`
+	LogFile          string   `json:"log_file,omitempty"`
+	CustomPromptDirs []string `json:"custom_prompt_dirs,omitempty"`
 }
 
 func DefaultConfig() *Config {
 	return &Config{
-		LogLevel:       "info",
-		CustomRuleDirs: make([]string, 0),
+		LogLevel:         "info",
+		CustomPromptDirs: make([]string, 0),
 	}
 }
 
@@ -52,9 +52,9 @@ func Load() (*Config, error) {
 	config := DefaultConfig()
 
 	defer func() {
-		defaultRulesDir, err := getRulesDir()
+		defaultPromptsDir, err := getPromptsDir()
 		if err == nil {
-			config.CustomRuleDirs = append(config.CustomRuleDirs, defaultRulesDir)
+			config.CustomPromptDirs = append(config.CustomPromptDirs, defaultPromptsDir)
 		}
 	}()
 
@@ -70,9 +70,9 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	for i, dir := range config.CustomRuleDirs {
+	for i, dir := range config.CustomPromptDirs {
 		expanded := expandPath(dir)
-		config.CustomRuleDirs[i] = expanded
+		config.CustomPromptDirs[i] = expanded
 	}
 
 	config.LogFile = expandPath(config.LogFile)
@@ -90,10 +90,10 @@ func expandPath(path string) string {
 	return path
 }
 
-func getRulesDir() (string, error) {
+func getPromptsDir() (string, error) {
 	configDir, err := getConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(configDir, defaultRulesDir), nil
+	return filepath.Join(configDir, defaultPromptsDir), nil
 }

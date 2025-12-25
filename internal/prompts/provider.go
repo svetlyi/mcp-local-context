@@ -32,7 +32,7 @@ func (r *Registry) Register(provider Provider) {
 }
 
 func (r *Registry) GetAllPrompts() []Prompt {
-	var allPrompts []Prompt
+	allPrompts := make([]Prompt, 0, 10)
 	for _, provider := range r.providers {
 		allPrompts = append(allPrompts, provider.GetPrompts()...)
 	}
