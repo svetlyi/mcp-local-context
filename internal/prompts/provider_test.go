@@ -34,3 +34,27 @@ func TestRegistryMultipleProviders(t *testing.T) {
 	prompts := registry.GetAllPrompts()
 	assert.Len(t, prompts, 2, "Expected 2 prompts")
 }
+
+func TestRegistryGetSupportedLanguages(t *testing.T) {
+	registry := NewRegistry()
+
+	provider1 := NewGolangProvider()
+	registry.Register(provider1)
+
+	languages := registry.GetSupportedLanguages()
+	assert.Contains(t, languages, "golang", "Should include golang language")
+}
+
+func TestRegistryGetPromptsByLanguage(t *testing.T) {
+	registry := NewRegistry()
+
+	provider1 := NewGolangProvider()
+	registry.Register(provider1)
+
+	prompts := registry.GetPromptsByLanguage("golang")
+	assert.Len(t, prompts, 1, "Expected 1 golang prompt")
+	assert.Equal(t, "golang-context-rule", prompts[0].Name)
+
+	emptyPrompts := registry.GetPromptsByLanguage("nonexistent")
+	assert.Len(t, emptyPrompts, 0, "Expected 0 prompts for nonexistent language")
+}

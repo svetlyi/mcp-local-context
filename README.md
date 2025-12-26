@@ -1,15 +1,18 @@
 # mcp-local-context
 
-A simple MCP (Model Context Protocol) server that provides prompts to AI assistants. This server helps ensure AI coding assistants have the right context when working with third-party packages by leveraging local module caches and custom prompts.
+An MCP (Model Context Protocol) server that provides prompts to AI assistants, helping them work with third-party packages by leveraging local module caches and custom prompts.
 
-## TLDR
+## Quick Start
 
 ```bash
 # Install
 go install github.com/svetlyi/mcp-local-context@latest
+
+# Find binary path
+echo $(go env GOPATH)/bin/mcp-local-context
 ```
 
-Add to your IDE (e.g., Cursor), Settings → MCP Servers → Add:
+Add to your IDE (e.g., Cursor): Settings → MCP Servers → Add:
 
 ```json
 {
@@ -20,16 +23,6 @@ Add to your IDE (e.g., Cursor), Settings → MCP Servers → Add:
   }
 }
 ```
-
-The path to the binary can be found this way:
-
-```bash
-echo $(go env GOPATH)/bin/mcp-local-context
-```
-
-## Overview
-
-`mcp-local-context` is an MCP server that provides prompts to AI assistants like Cursor, Claude, and GitHub Copilot. The primary use case is to provide systematic approaches for working with third-party packages by referencing local caches (like the Go module cache) rather than relying on potentially outdated documentation or assumptions.
 
 ## Why Use This?
 
@@ -47,19 +40,9 @@ echo $(go env GOPATH)/bin/mcp-local-context
 - ⚙️ **Configurable**: Simple JSON configuration file
 - 🔌 **Extensible**: Easy to add new prompt providers (e.g., JavaScript, Python)
 
-## Installation
-
-📦 Install the server:
-
-```bash
-go install github.com/svetlyi/mcp-local-context@latest
-```
-
 ## Configuration
 
-### Configuration File
-
-📋 Create a configuration file at `~/.mcp-local-context/config.json`:
+Create `~/.mcp-local-context/config.json` (optional):
 
 ```json
 {
@@ -69,18 +52,35 @@ go install github.com/svetlyi/mcp-local-context@latest
 }
 ```
 
-**Configuration Options**:
-- `log_level`: Logging level (`debug`, `info`, `warn`, `error`). Default: `info`
-- `log_file`: Path to log file (supports `~/` expansion). If not set, logs to a temporary file, depending on the OS.
-- `custom_prompt_dirs`: Array of directories containing custom prompt files. The default `~/.mcp-local-context/prompts/` is always included
+**Options**:
+- `log_level`: `debug`, `info`, `warn`, `error` (default: `info`)
+- `log_file`: Path to log file (supports `~/` expansion). Default: OS temp file
+- `custom_prompt_dirs`: Additional directories for custom prompts. `~/.mcp-local-context/prompts/` is always included
 
 ### Custom Prompts
 
-📝 Place custom prompt files (Markdown format) in `~/.mcp-local-context/prompts/`. Each `.md` file will be automatically discovered and made available as a prompt.
+Place Markdown files in `~/.mcp-local-context/prompts/`. Each `.md` file is automatically discovered.
 
-> ⚠️ **Important**: The first line of the file will be used as the prompt's description. If the first line is a markdown heading (starting with `#`), the heading markers will be automatically removed.
+#### Prompt Configuration
 
-Example: `~/.mcp-local-context/prompts/my-custom-prompt.md`
+You can configure prompts using key-value pairs at the start of the file. The configuration section ends with a blank line.
+
+**Supported configuration keys**:
+- `title`: Custom title/description for the prompt (overrides first line extraction)
+- `lang`: Language identifier (e.g., `go`, `javascript`, `python`)
+
+**Example with configuration**: `~/.mcp-local-context/prompts/my-custom-prompt.md`
+
+```markdown
+title: My Custom Prompt Title
+lang: go
+
+# My Custom Prompt
+
+This is my custom prompt that will be provided to AI assistants.
+```
+
+**Example without configuration**: `~/.mcp-local-context/prompts/simple-prompt.md`
 
 ```markdown
 A description of my custom prompt.
@@ -90,7 +90,9 @@ A description of my custom prompt.
 This is my custom prompt that will be provided to AI assistants.
 ```
 
-The prompt will be available as a prompt named `my-custom-prompt` with the description "A description of my custom prompt." (extracted from the first line).
+> **Note**: If `title` is not specified, the first line is used as the prompt description. If the first line is a markdown heading (`#`), the heading markers are automatically removed.
+
+The prompt will be available as a prompt named `my-custom-prompt` (derived from the filename) with the configured title or extracted description.
 
 ## Usage
 
@@ -118,21 +120,37 @@ The prompt will be available as a prompt named `my-custom-prompt` with the descr
 
 If you installed it using `go install`, you can find the binary in your GO binary path, `echo $(go env GOPATH)/bin/mcp-local-context`.
 
+### Making mcp-local-context work
+
+As LLMs arent' deterministic, sometimes you should force using certain tools.
+
+You can use the MCP in two ways: directly use prompts, for example, in Cursor, you can write:
+
+```prompt
+Create something in Go, use /golang_local_context/golang-context-rule
+```
+
+**Method 2: Ask to use the MCP**
+
+```prompt
+Create something in Go, use mcp-local-context
+```
+
 ## Available Prompts
 
-### 🐹 golang-context-rule
+### golang-context-rule
 
-Provides a systematic approach for working with third-party Go packages by referencing the Go module cache. This prompt guides AI assistants to:
+Systematic approach for working with third-party Go packages using the Go module cache. Guides AI assistants to:
 
 1. Identify the exact module version from `go.mod`
 2. Locate the Go module cache
 3. Explore the package structure
-4. Use `go doc` to get documentation
-5. Read the source code directly
+4. Use `go doc` for documentation
+5. Read source code directly
 
 ## License
 
-📄 MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

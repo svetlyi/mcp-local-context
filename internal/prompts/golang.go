@@ -18,6 +18,7 @@ func (g *GolangProvider) GetPrompts() []Prompt {
 			Description: "Provides a systematic approach for working with third-party Go packages by referencing the Go module cache",
 			Arguments:   []PromptArgument{},
 			Content:     golangPromptContent,
+			Language:    "go",
 		},
 	}
 }

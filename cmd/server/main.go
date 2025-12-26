@@ -41,11 +41,13 @@ func main() {
 	}
 	if len(customProviders) > 0 {
 		slog.Info("Loaded custom prompts", "count", len(customProviders))
-	} else if err != nil {
-		slog.Warn("No custom prompts loaded due to errors")
 	}
 
-	srv := server.New(registry)
+	srv, err := server.New(registry)
+	if err != nil {
+		slog.Error("Failed to create server", "error", err)
+		os.Exit(1)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
