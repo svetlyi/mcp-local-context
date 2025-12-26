@@ -26,19 +26,15 @@ Add to your IDE (e.g., Cursor): Settings → MCP Servers → Add:
 
 ## Why Use This?
 
-- 🔄 **Centralized Configuration**: Configure prompts once in one MCP server, use them across all AI tools
-- 🔁 **No Duplication**: Avoid adding the same prompts to each tool individually
-- 🔀 **Easy Synchronization**: Update prompts in one place, changes reflect everywhere
-- ♻️ **Reusable**: Share your custom prompts across Cursor, Claude Desktop, GitHub Copilot, and more
-- 🎯 **Consistent Context**: Ensure all AI assistants have the same context and guidelines
+- 🔄 **Centralized & Reusable**: Configure prompts once in a single MCP server, use them across all AI tools (Cursor, Claude Desktop, GitHub Copilot, etc.)
+- 🔀 **Easy Synchronization**: Update prompts in one place and changes automatically reflect everywhere
+- 🎯 **Consistent Context**: Ensure all AI assistants have the same context and guidelines without manual duplication
 
 ## Features
 
-- 🐹 **Golang Context Prompt**: Built-in prompt for working with third-party Go packages using the Go module cache
-- 📝 **Custom Prompts**: Auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
+- 🐹 **Built-in & Custom Prompts**: Built-in Go context prompt plus auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
 - 🌍 **Cross-platform**: Works on macOS, Linux, and Windows
-- ⚙️ **Configurable**: Simple JSON configuration file
-- 🔌 **Extensible**: Easy to add new prompt providers (e.g., JavaScript, Python)
+- ⚙️ **Configurable & Extensible**: JSON configuration file and easy to add new prompt providers (e.g., JavaScript, Python)
 
 ## Configuration
 
@@ -111,7 +107,7 @@ The prompt will be available as a prompt named `my-custom-prompt` (derived from 
 ```json
 {
   "mcpServers": {
-    "local-context": {
+    "local_context": {
       "command": "/path/to/mcp-local-context/bin//"
     }
   }
@@ -127,13 +123,13 @@ As LLMs arent' deterministic, sometimes you should force using certain tools.
 You can use the MCP in two ways: directly use prompts, for example, in Cursor, you can write:
 
 ```prompt
-Create something in Go, use /golang_local_context/golang-context-rule
+Create something in Go, use /local_context/golang-context-rule
 ```
 
 **Method 2: Ask to use the MCP**
 
 ```prompt
-Create something in Go, use mcp-local-context
+Create something in Go, use local-context MCP
 ```
 
 ## Available Prompts
