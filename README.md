@@ -27,7 +27,6 @@ Add to your IDE (e.g., Cursor): Settings → MCP Servers → Add:
 ## Why Use This?
 
 - 🔄 **Centralized & Reusable**: Configure prompts once in a single MCP server, use them across all AI tools (Cursor, Claude Desktop, GitHub Copilot, etc.)
-- 🔀 **Easy Synchronization**: Update prompts in one place and changes automatically reflect everywhere
 - 🎯 **Consistent Context**: Ensure all AI assistants have the same context and guidelines without manual duplication
 
 ## Features
@@ -94,11 +93,7 @@ The prompt will be available as a prompt named `my-custom-prompt` (derived from 
 
 ### Running the Server
 
-🚀 The server communicates via stdio (standard input/output), which is the standard transport for MCP servers:
-
-```bash
-./bin/mcp-local-context
-```
+🚀 The server communicates via stdio (standard input/output).
 
 ### Integration with AI Tools
 
@@ -108,7 +103,7 @@ The prompt will be available as a prompt named `my-custom-prompt` (derived from 
 {
   "mcpServers": {
     "local_context": {
-      "command": "/path/to/mcp-local-context/bin//"
+      "command": "/path/to/mcp-local-context"
     }
   }
 }
@@ -118,18 +113,34 @@ If you installed it using `go install`, you can find the binary in your GO binar
 
 ### Making mcp-local-context work
 
-As LLMs arent' deterministic, sometimes you should force using certain tools.
+As LLMs aren't deterministic, sometimes you should explicitly instruct them to use certain tools or prompts.
 
-You can use the MCP in two ways: directly use prompts, for example, in Cursor, you can write:
+You can use the MCP in two ways:
+
+**Method 1: Directly reference a specific prompt**
+
+Manually invoke a specific prompt by name. This gives you precise control over which instructions are used.
+
+For example, in Cursor, you can write:
 
 ```prompt
-Create something in Go, use /local_context/golang-context-rule
+Create something in Go, use the /local_context/golang-context-rule prompt
 ```
 
-**Method 2: Ask to use the MCP**
+**Method 2: Ask the AI to use the MCP tools**
+
+Instruct the AI to use the MCP's automatic language detection tools. The AI will call `list_supported_languages` and then `get_context_instructions` with the appropriate language, which automatically provides the right context instructions.
+
+For example:
 
 ```prompt
-Create something in Go, use local-context MCP
+Create something in Go, use the local-context MCP to get context instructions for Go
+```
+
+or more generally:
+
+```prompt
+When working with third-party packages, use the local-context MCP to get the appropriate context instructions
 ```
 
 ## Available Prompts
@@ -143,6 +154,11 @@ Systematic approach for working with third-party Go packages using the Go module
 3. Explore the package structure
 4. Use `go doc` for documentation
 5. Read source code directly
+
+## Future work
+
+* **Module indexing**: Index existing modules to find appropriate functionality more efficiently based on the task
+* **More languages**: Add other languages support, such as JavaScript, etc
 
 ## License
 

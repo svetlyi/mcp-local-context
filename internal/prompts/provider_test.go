@@ -42,7 +42,7 @@ func TestRegistryGetSupportedLanguages(t *testing.T) {
 	registry.Register(provider1)
 
 	languages := registry.GetSupportedLanguages()
-	assert.Contains(t, languages, "golang", "Should include golang language")
+	assert.Contains(t, languages, "go", "Should include golang language")
 }
 
 func TestRegistryGetPromptsByLanguage(t *testing.T) {
@@ -51,7 +51,7 @@ func TestRegistryGetPromptsByLanguage(t *testing.T) {
 	provider1 := NewGolangProvider()
 	registry.Register(provider1)
 
-	prompts := registry.GetPromptsByLanguage("golang")
+	prompts := registry.GetPromptsByLanguage("go")
 	assert.Len(t, prompts, 1, "Expected 1 golang prompt")
 	assert.Equal(t, "golang-context-rule", prompts[0].Name)
 
