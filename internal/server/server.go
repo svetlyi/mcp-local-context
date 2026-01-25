@@ -126,14 +126,14 @@ func (s *Server) registerTools() error {
 		prompts := s.registry.GetPromptsByLanguage(args.Language)
 		if len(prompts) == 0 {
 			supportedLanguages := s.registry.GetSupportedLanguages()
-			message := fmt.Sprintf("⚠️ No context instructions found for language: %s", args.Language)
+			message := fmt.Sprintf("No context instructions found for language: %s", args.Language)
 			if len(supportedLanguages) > 0 {
-				message += fmt.Sprintf("\n\n✅ Available languages with context instructions: %s\n\n", strings.Join(supportedLanguages, ", "))
-				message += "⚠️ CRITICAL: You MUST use list_supported_languages FIRST before requesting instructions. "
+				message += fmt.Sprintf("\n\nAvailable languages with context instructions: %s\n\n", strings.Join(supportedLanguages, ", "))
+				message += "CRITICAL: You MUST use list_supported_languages FIRST before requesting instructions. "
 				message += "Working with third-party packages without proper context instructions leads to errors and incorrect implementations. "
-				message += "If your language is listed above, use it. If not, you may need to work without specialized instructions, but this is NOT recommended for third-party code."
+				message += "If your language is listed above, use it. If not, you may need to work without specialized instructions."
 			} else {
-				message += "\n\n⚠️ No languages are currently supported. This means you cannot use specialized context instructions for third-party packages."
+				message += "\n\nNo languages are currently supported. This means you cannot use specialized context instructions for third-party packages."
 			}
 			return &mcp.CallToolResult{
 				Content: []mcp.Content{

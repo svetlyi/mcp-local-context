@@ -1,6 +1,13 @@
 # mcp-local-context
 
-An MCP (Model Context Protocol) server that provides prompts to AI assistants, helping them work with third-party packages by leveraging local module caches and custom prompts.
+## What is it and why use this?
+
+An MCP server that helps AI assistants work with GoLang third-party packages **using your local Go module cache**. Think of it as a **free, local alternative to [Context7](https://context7.com)**.
+
+- **Free and unlimited** - uses your existing GoLang cache, no API limits or costs
+- **Works with any module** - supports public and private modules already in your cache
+- **Universal compatibility** - works with all AI tools (Cursor, Claude, GitHub Copilot, etc.)
+- **Customizable** - add your own prompts and instructions for AI agents
 
 ## Quick Start
 
@@ -24,18 +31,14 @@ Add to your IDE (e.g., Cursor): Settings → MCP Servers → Add:
 }
 ```
 
-## Why Use This?
-
-- 🔄 **Centralized & Reusable**: Configure prompts once in a single MCP server, use them across all AI tools (Cursor, Claude Desktop, GitHub Copilot, etc.)
-- 🎯 **Consistent Context**: Ensure all AI assistants have the same context and guidelines without manual duplication
+> The server communicates via stdio (standard input/output).
 
 ## Features
 
-- 🐹 **Built-in & Custom Prompts**: Built-in Go context prompt plus auto-discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
-- 🌍 **Cross-platform**: Works on macOS, Linux, and Windows
-- ⚙️ **Configurable & Extensible**: JSON configuration file and easy to add new prompt providers (e.g., JavaScript, Python)
+- **Built-in & Custom Prompts**: Built-in Go context prompt with automatic discovery of custom prompt files from `~/.mcp-local-context/prompts/*.md`
+- **Configurable & Extensible**: JSON configuration file and easily add new prompt providers (e.g., JavaScript, Python)
 
-## Configuration
+## Configuration (optional)
 
 Create `~/.mcp-local-context/config.json` (optional):
 
@@ -50,18 +53,18 @@ Create `~/.mcp-local-context/config.json` (optional):
 **Options**:
 - `log_level`: `debug`, `info`, `warn`, `error` (default: `info`)
 - `log_file`: Path to log file (supports `~/` expansion). Default: OS temp file
-- `custom_prompt_dirs`: Additional directories for custom prompts. `~/.mcp-local-context/prompts/` is always included
+- `custom_prompt_dirs`: Additional directories for custom prompts. The `~/.mcp-local-context/prompts/` directory is always included
 
 ### Custom Prompts
 
-Place Markdown files in `~/.mcp-local-context/prompts/`. Each `.md` file is automatically discovered.
+Place Markdown files in `~/.mcp-local-context/prompts/`. Each `.md` file is automatically discovered and loaded.
 
 #### Prompt Configuration
 
 You can configure prompts using key-value pairs at the start of the file. The configuration section ends with a blank line.
 
 **Supported configuration keys**:
-- `title`: Custom title/description for the prompt (overrides first line extraction)
+- `title`: Custom title/description for the prompt
 - `lang`: Language identifier (e.g., `go`, `javascript`, `python`)
 
 **Example with configuration**: `~/.mcp-local-context/prompts/my-custom-prompt.md`
@@ -91,29 +94,7 @@ The prompt will be available as a prompt named `my-custom-prompt` (derived from 
 
 ## Usage
 
-### Running the Server
-
-🚀 The server communicates via stdio (standard input/output).
-
-### Integration with AI Tools
-
-🔌 For example, for Cursor IDE, add it to the settings:
-
-```json
-{
-  "mcpServers": {
-    "local_context": {
-      "command": "/path/to/mcp-local-context"
-    }
-  }
-}
-```
-
-If you installed it using `go install`, you can find the binary in your GO binary path, `echo $(go env GOPATH)/bin/mcp-local-context`.
-
-### Making mcp-local-context work
-
-As LLMs aren't deterministic, sometimes you should explicitly instruct them to use certain tools or prompts.
+### How to use
 
 You can use the MCP in two ways:
 
@@ -129,7 +110,7 @@ Create something in Go, use the /local_context/golang-context-rule prompt
 
 **Method 2: Ask the AI to use the MCP tools**
 
-Instruct the AI to use the MCP's automatic language detection tools. The AI will call `list_supported_languages` and then `get_context_instructions` with the appropriate language, which automatically provides the right context instructions.
+Ask the AI to use the MCP's automatic language detection tools. The AI will call `list_supported_languages` and then `get_context_instructions` with the appropriate language, which automatically provides the right context instructions.
 
 For example:
 
@@ -158,7 +139,7 @@ Systematic approach for working with third-party Go packages using the Go module
 ## Future work
 
 * **Module indexing**: Index existing modules to find appropriate functionality more efficiently based on the task
-* **More languages**: Add other languages support, such as JavaScript, etc
+* **More languages**: Add support for other languages, such as JavaScript, etc.
 
 ## License
 
